@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TicketWave — Book Tickets Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:     #e11d48;
+  --red2:    #be123c;
+  --red-bg:  rgba(225,29,72,0.08);
+  --dark:    #1a1a2e;
+  --darker:  #111122;
+  --card:    #1e1e2e;
+  --card2:   #252535;
+  --border:  rgba(255,255,255,0.09);
+  --border2: rgba(255,255,255,0.15);
+  --text:    #f1f1f3;
+  --text2:   rgba(241,241,243,0.6);
+  --text3:   rgba(241,241,243,0.35);
+  --green:   #22c55e;
+  --yellow:  #facc15;
+  --blue:    #3b82f6;
+  --teal:    #14b8a6;
+  --orange:  #f97316;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito Sans',sans-serif;background:var(--darker);color:var(--text);overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--darker)}
+::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px}
+::selection{background:rgba(225,29,72,0.35);color:#fff}
+img{display:block}
+button,input,select{font-family:inherit}
+a{text-decoration:none;color:inherit}
+
+/* ─── VIEWS ─── */
+.page{display:none;min-height:100vh}
+.page.on{display:block}
+
+/* ─── TOP NAV ─── */
+.topnav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--dark);
+  border-bottom:1px solid var(--border);
+  height:56px;
+  display:flex;align-items:center;
+  padding:0 24px;gap:20px;
+}
+.tn-logo{
+  display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;
+  padding-right:20px;border-right:1px solid var(--border);
+}
+.tn-logo-mark{
+  width:32px;height:32px;border-radius:7px;
+  background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+}
+.tn-logo-mark svg{width:18px;height:18px;fill:#fff}
+.tn-logo-name{font-weight:900;font-size:17px;letter-spacing:-0.5px}
+.tn-logo-name span{color:var(--red)}
+
+.tn-city{
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  padding:6px 12px;border-radius:6px;
+  border:1px solid var(--border);
+  font-size:13px;font-weight:700;color:var(--text2);
+  transition:all .2s;white-space:nowrap;flex-shrink:0;
+}
+.tn-city:hover{border-color:var(--red);color:var(--text)}
+.tn-city svg{width:14px;height:14px;fill:var(--red)}
+
+.tn-search{
+  flex:1;max-width:520px;
+  display:flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:7px 14px;
+  transition:all .2s;
+}
+.tn-search:focus-within{border-color:var(--red);box-shadow:0 0 0 2px rgba(225,29,72,.12)}
+.tn-search svg{width:15px;height:15px;color:var(--text3);flex-shrink:0}
+.tn-search input{background:none;border:none;color:var(--text);outline:none;font-size:14px;width:100%}
+.tn-search input::placeholder{color:var(--text3)}
+
+.tn-links{display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0}
+.tn-link{
+  background:none;border:none;color:var(--text2);
+  padding:7px 12px;border-radius:6px;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px;
+}
+.tn-link:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.tn-link.red-btn{background:var(--red);color:#fff;padding:7px 16px;border-radius:20px}
+.tn-link.red-btn:hover{background:var(--red2);color:#fff}
+
+/* ─── CITY BANNER ─── */
+.city-banner{
+  position:fixed;top:56px;left:0;right:0;z-index:190;
+  background:rgba(14,14,28,.97);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;gap:0;
+  height:40px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.city-banner::-webkit-scrollbar{display:none}
+.cat-tab{
+  padding:0 16px;height:40px;
+  display:flex;align-items:center;
+  font-size:13px;font-weight:700;
+  color:var(--text2);cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap;flex-shrink:0;
+}
+.cat-tab:hover{color:var(--text)}
+.cat-tab.active{color:var(--red);border-bottom-color:var(--red)}
+
+/* ─── HERO CAROUSEL ─── */
+.hero{position:relative;overflow:hidden;height:380px;margin-top:96px}
+.hero-slides{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.hero-slide{
+  min-width:100%;height:380px;position:relative;flex-shrink:0;
+  display:flex;align-items:flex-end;
+}
+.hero-slide-bg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:240px;
+  filter:blur(1px) brightness(.3);
+}
+.hero-slide-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(to right, rgba(26,26,46,.95) 0%, rgba(26,26,46,.6) 50%, transparent 100%),
+             linear-gradient(to top, rgba(26,26,46,1) 0%, transparent 40%);
+}
+.hero-slide-content{position:relative;z-index:1;padding:28px 48px;max-width:580px}
+.hero-badge{
+  display:inline-block;background:var(--red);color:#fff;
+  padding:3px 10px;border-radius:4px;font-size:11px;font-weight:800;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+}
+.hero-title{font-size:clamp(24px,4vw,42px);font-weight:900;line-height:1.15;margin-bottom:8px;letter-spacing:-.5px}
+.hero-meta{font-size:13px;color:var(--text2);margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap}
+.hero-cta{
+  background:var(--red);color:#fff;border:none;
+  padding:11px 28px;border-radius:24px;
+  font-size:14px;font-weight:800;cursor:pointer;
+  transition:all .25s;display:inline-flex;align-items:center;gap:6px;
+}
+.hero-cta:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(225,29,72,.4)}
+.hero-dots{
+  position:absolute;bottom:16px;right:24px;z-index:2;
+  display:flex;gap:6px;
+}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .2s}
+.hero-dot.active{background:var(--red);width:20px;border-radius:3px}
+.hero-arrows{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;padding:0 12px;z-index:2;pointer-events:none}
+.hero-arrow{
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);
+  color:#fff;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:all;transition:all .2s;
+}
+.hero-arrow:hover{background:var(--red);border-color:var(--red)}
+
+/* ─── SECTION ─── */
+.section{padding:32px 24px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sec-title{font-size:20px;font-weight:900;letter-spacing:-.3px}
+.sec-title span{color:var(--red)}
+.sec-more{
+  font-size:13px;font-weight:700;color:var(--red);cursor:pointer;
+  display:flex;align-items:center;gap:4px;
+  background:var(--red-bg);border:1px solid rgba(225,29,72,.2);
+  padding:5px 12px;border-radius:20px;transition:all .2s;
+}
+.sec-more:hover{background:var(--red);color:#fff}
+
+/* ─── HORIZONTAL SCROLL ROW ─── */
+.hscroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+
+/* ─── EVENT CARD (BMS style) ─── */
+.ev-card{
+  flex-shrink:0;width:160px;cursor:pointer;
+  transition:transform .2s;
+}
+.ev-card:hover{transform:translateY(-4px)}
+.ev-card-poster{
+  width:160px;height:220px;border-radius:10px;overflow:hidden;position:relative;
+  background:var(--card);border:1px solid var(--border);
+}
+.ev-card-poster-bg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:72px;
+}
+.ev-card-poster-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 50%);
+}
+.ev-card-poster-rating{
+  position:absolute;bottom:8px;left:8px;
+  background:rgba(0,0,0,.7);
+  border-radius:4px;padding:2px 7px;
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;gap:3px;
+}
+.ev-card-poster-rating svg{width:11px;height:11px;fill:var(--yellow)}
+.ev-card-poster-lang{
+  position:absolute;top:8px;right:8px;
+  background:rgba(0,0,0,.75);border-radius:4px;
+  padding:2px 6px;font-size:10px;font-weight:700;letter-spacing:.5px;
+  color:var(--yellow);
+}
+.ev-card-poster-type{
+  position:absolute;top:8px;left:8px;
+  border-radius:4px;padding:2px 7px;
+  font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+}
+.ev-card-info{padding:8px 2px 0}
+.ev-card-name{font-size:13px;font-weight:800;line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-card-sub{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* WIDE EVENT CARD (for events/concerts) */
+.ev-wide{
+  flex-shrink:0;width:260px;border-radius:12px;overflow:hidden;
+  background:var(--card);border:1px solid var(--border);cursor:pointer;
+  transition:all .25s;
+}
+.ev-wide:hover{transform:translateY(-4px);border-color:rgba(225,29,72,.3);box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.ev-wide-img{
+  height:150px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;
+}
+.ev-wide-badge{
+  position:absolute;top:10px;left:10px;z-index:1;
+  padding:3px 8px;border-radius:4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+}
+.ev-wide-body{padding:14px}
+.ev-wide-name{font-size:15px;font-weight:800;margin-bottom:4px;line-height:1.3}
+.ev-wide-meta{font-size:12px;color:var(--text2);margin-bottom:10px}
+.ev-wide-footer{display:flex;align-items:center;justify-content:space-between}
+.ev-wide-price{font-size:14px;font-weight:800;color:var(--red)}
+.btn-bms{
+  background:var(--red);color:#fff;border:none;
+  padding:6px 16px;border-radius:20px;font-size:12px;font-weight:800;
+  cursor:pointer;transition:all .2s;
+}
+.btn-bms:hover{background:var(--red2);transform:scale(1.04)}
+
+/* ─── FILTER BAR ─── */
+.filter-bar{
+  display:flex;gap:10px;flex-wrap:wrap;
+  padding:16px 24px;
+  background:var(--dark);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:96px;z-index:100;
+}
+.flt{
+  background:var(--card);border:1px solid var(--border);
+  color:var(--text2);
+  padding:7px 14px;border-radius:20px;
+  font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+  transition:all .2s;
+}
+.flt:hover,.flt.active{background:var(--red);border-color:var(--red);color:#fff}
+.flt select{
+  background:none;border:none;color:inherit;
+  font-family:inherit;font-size:13px;font-weight:700;
+  outline:none;cursor:pointer;
+  padding-right:4px;
+}
+.flt select option{background:var(--card2);color:var(--text)}
+
+/* ─── EVENT LISTING GRID ─── */
+.ev-list-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:20px;
+  padding:24px;
+}
+
+/* ─── EVENT DETAIL PAGE ─── */
+.detail-masthead{
+  position:relative;overflow:hidden;
+  padding:116px 0 0;
+  background:var(--dark);
+  min-height:300px;
+  display:flex;
+}
+.dm-bg{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:320px;opacity:.06;filter:blur(6px);
+}
+.dm-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to right, var(--dark) 30%, transparent 70%),
+             linear-gradient(to top, var(--darker) 0%, transparent 30%);
+}
+.dm-content{
+  position:relative;z-index:1;
+  display:flex;gap:32px;padding:32px 36px;
+  align-items:flex-start;
+}
+.dm-poster{
+  flex-shrink:0;width:180px;height:240px;
+  border-radius:12px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:80px;
+  box-shadow:0 20px 50px rgba(0,0,0,.6);
+  position:relative;
+}
+.dm-poster-bg{position:absolute;inset:0}
+.dm-poster-emoji{position:relative;z-index:1}
+.dm-info{flex:1}
+.dm-genre-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.dm-genre{
+  padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;
+  border:1px solid var(--border2);color:var(--text2);
+}
+.dm-title{font-size:clamp(26px,4vw,48px);font-weight:900;letter-spacing:-.5px;line-height:1.1;margin-bottom:10px}
+.dm-rating-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.dm-stars{display:flex;gap:2px}
+.dm-stars svg{width:16px;height:16px;fill:var(--yellow)}
+.dm-rating-num{font-size:16px;font-weight:900;color:var(--yellow)}
+.dm-rating-ct{font-size:13px;color:var(--text3)}
+.dm-meta-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.dm-meta-item{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--text2);
+}
+.dm-meta-item svg{width:14px;height:14px;color:var(--red)}
+.dm-cta-row{display:flex;gap:12px;flex-wrap:wrap}
+.btn-book-big{
+  background:var(--red);color:#fff;border:none;
+  padding:13px 36px;border-radius:6px;
+  font-size:16px;font-weight:900;cursor:pointer;
+  transition:all .25s;
+  box-shadow:0 4px 20px rgba(225,29,72,.35);
+}
+.btn-book-big:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 8px 28px rgba(225,29,72,.5)}
+.btn-wish{
+  background:transparent;border:2px solid var(--border2);
+  color:var(--text2);
+  padding:13px 20px;border-radius:6px;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;
+}
+.btn-wish:hover{border-color:var(--red);color:var(--red)}
+
+/* TABS in detail */
+.detail-tabs{
+  border-bottom:1px solid var(--border);
+  padding:0 36px;display:flex;gap:0;
+  background:var(--dark);
+  position:sticky;top:56px;z-index:100;
+}
+.dtab{
+  padding:14px 20px;font-size:14px;font-weight:700;
+  color:var(--text2);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:all .2s;
+}
+.dtab:hover{color:var(--text)}
+.dtab.active{color:var(--red);border-bottom-color:var(--red)}
+
+.detail-body{padding:28px 36px;display:grid;grid-template-columns:1fr 320px;gap:28px}
+.detail-desc{font-size:14px;line-height:1.8;color:var(--text2);margin-bottom:24px}
+.detail-cast-grid{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.cast-chip{flex-shrink:0;text-align:center;width:80px}
+.cast-avatar{width:64px;height:64px;border-radius:50%;background:var(--card2);margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid var(--border)}
+.cast-name{font-size:11px;font-weight:700;text-align:center}
+.cast-role{font-size:10px;color:var(--text3);text-align:center}
+
+/* VENUE / DATE SELECTOR */
+.venue-date-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.vd-hd{padding:16px 18px;border-bottom:1px solid var(--border);font-size:15px;font-weight:800}
+.date-strip{display:flex;gap:8px;padding:14px 18px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.date-strip::-webkit-scrollbar{display:none}
+.date-pill{
+  flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;
+  padding:8px 14px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--border);transition:all .2s;min-width:58px;
+}
+.date-pill:hover{border-color:var(--red)}
+.date-pill.active{background:var(--red);border-color:var(--red)}
+.date-pill-day{font-size:11px;font-weight:700;color:var(--text2)}
+.date-pill-num{font-size:20px;font-weight:900;line-height:1.2}
+.date-pill-mon{font-size:10px;color:var(--text2)}
+.date-pill.active .date-pill-day,.date-pill.active .date-pill-mon{color:rgba(255,255,255,.8)}
+.venue-list{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.venue-item{
+  border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .2s;
+}
+.venue-item:hover{border-color:rgba(225,29,72,.4)}
+.venue-item.active{border-color:var(--red);background:var(--red-bg)}
+.venue-name{font-size:14px;font-weight:800;margin-bottom:4px}
+.venue-addr{font-size:12px;color:var(--text2);margin-bottom:8px}
+.showtime-row{display:flex;gap:8px;flex-wrap:wrap}
+.showtime{
+  padding:5px 12px;border-radius:4px;
+  border:1px solid rgba(34,197,94,.3);
+  font-size:12px;font-weight:700;color:var(--green);cursor:pointer;transition:all .2s;
+}
+.showtime:hover,.showtime.active{background:var(--green);color:#fff;border-color:var(--green)}
+.showtime.limited{border-color:rgba(249,115,22,.4);color:var(--orange)}
+.showtime.limited:hover{background:var(--orange);border-color:var(--orange);color:#fff}
+.showtime.housefull{border-color:rgba(255,255,255,.1);color:var(--text3);cursor:not-allowed}
+
+/* ─── SEAT MAP PAGE ─── */
+.seat-page{padding:96px 0 0}
+.seat-page-hd{
+  background:var(--dark);border-bottom:1px solid var(--border);
+  padding:16px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.seat-page-hd h2{font-size:18px;font-weight:900}
+.seat-page-hd p{font-size:13px;color:var(--text2)}
+.seat-layout{padding:24px;display:grid;grid-template-columns:1fr 300px;gap:24px}
+.screen-wrap{text-align:center;margin-bottom:28px}
+.screen-bar{
+  background:linear-gradient(to bottom, rgba(255,255,255,.25), rgba(255,255,255,.05));
+  height:8px;border-radius:0 0 50% 50%;margin:0 auto;width:80%;
+  box-shadow:0 2px 20px rgba(255,255,255,.15);margin-bottom:6px;
+}
+.screen-lbl{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.seat-legend{display:flex;gap:16px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.sleg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.sleg-sq{width:16px;height:14px;border-radius:3px}
+
+.seat-section-label{
+  font-size:11px;font-weight:800;color:var(--text3);
+  letter-spacing:2px;text-transform:uppercase;
+  text-align:center;margin:10px 0 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.seat-section-label::before,.seat-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.seats-grid{margin-bottom:4px}
+.seat-row-wrap{display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:3px}
+.seat-row-lbl{width:16px;font-size:10px;color:var(--text3);text-align:center;font-weight:700;flex-shrink:0}
+.seat{
+  width:22px;height:20px;border-radius:3px 3px 0 0;cursor:pointer;
+  border:1px solid transparent;transition:all .12s;
+}
+.seat.avail{background:#1d4e2e;border-color:#22c55e30}
+.seat.avail:hover{background:var(--green);transform:scale(1.25);z-index:1;position:relative}
+.seat.sel{background:var(--yellow);border-color:var(--yellow)}
+.seat.taken{background:#2a2a3a;border-color:#3a3a4a;cursor:not-allowed}
+.seat.premium{background:#1a2e4e;border-color:#3b82f630}
+.seat.premium:hover{background:var(--blue);transform:scale(1.25);z-index:1;position:relative}
+.seat.premium.sel{background:var(--yellow);border-color:var(--yellow)}
+.seat.recliner{background:#2e1a1a;border-color:#f9731630}
+.seat.recliner:hover{background:var(--orange);transform:scale(1.25);z-index:1;position:relative}
+.seat.recliner.sel{background:var(--yellow);border-color:var(--yellow)}
+.seat-gap{width:10px;flex-shrink:0}
+
+/* TICKET SUMMARY SIDEBAR */
+.tsidebar{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+  position:sticky;top:100px;height:fit-content;
+}
+.ts-title{font-size:16px;font-weight:900;margin-bottom:4px}
+.ts-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
+.ts-ev-row{display:flex;gap:10px;align-items:center;padding:12px;background:var(--card2);border-radius:8px;margin-bottom:14px}
+.ts-ev-emoji{font-size:28px;flex-shrink:0}
+.ts-ev-name{font-size:13px;font-weight:800}
+.ts-ev-sub{font-size:11px;color:var(--text2)}
+.ts-divider{height:1px;background:var(--border);margin:14px 0}
+.ts-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:8px}
+.ts-total{display:flex;justify-content:space-between;font-size:15px;font-weight:900;color:var(--text)}
+.ts-seats{font-size:12px;color:var(--text3);margin-bottom:12px;min-height:18px}
+.btn-proceed{
+  width:100%;background:var(--red);color:#fff;border:none;
+  padding:14px;border-radius:6px;
+  font-size:15px;font-weight:900;cursor:pointer;
+  transition:all .25s;margin-top:14px;
+  box-shadow:0 4px 16px rgba(225,29,72,.3);
+}
+.btn-proceed:hover{background:var(--red2);box-shadow:0 6px 24px rgba(225,29,72,.45)}
+.btn-proceed:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* ─── CHECKOUT PAGES ─── */
+.checkout-layout{
+  padding:96px 24px 40px;
+  display:grid;grid-template-columns:1fr 340px;gap:24px;
+  max-width:1100px;margin:0 auto;
+}
+.checkout-main{}
+.checkout-step-hd{
+  display:flex;align-items:center;gap:12px;margin-bottom:24px;
+}
+.step-circle{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--red);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;flex-shrink:0;
+}
+.step-circle.done{background:var(--green)}
+.step-circle.inactive{background:var(--card2);color:var(--text3)}
+.step-line{flex:1;height:2px;background:var(--border)}
+.step-line.done{background:var(--green)}
+.checkout-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:24px;margin-bottom:16px;
+}
+.checkout-card h3{font-size:16px;font-weight:900;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:.5px;text-transform:uppercase}
+.fg input,.fg select{
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--text);border-radius:7px;padding:11px 13px;
+  font-size:14px;outline:none;transition:border-color .2s;
+}
+.fg input:focus,.fg select:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(225,29,72,.1)}
+.fg input::placeholder{color:var(--text3)}
+
+/* PAYMENT */
+.pay-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.pay-opt{
+  background:var(--card2);border:2px solid var(--border);
+  border-radius:9px;padding:14px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;
+}
+.pay-opt:hover{border-color:var(--border2)}
+.pay-opt.chosen{border-color:var(--red);background:var(--red-bg)}
+.pay-opt .pay-icon{font-size:22px;flex-shrink:0}
+
+/* OFFER CARD */
+.offer-strip{
+  background:linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  border:1px solid rgba(34,197,94,.2);border-radius:8px;
+  padding:12px 14px;margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+.offer-tag{
+  background:var(--green);color:#111;
+  padding:2px 8px;border-radius:4px;font-size:11px;font-weight:800;white-space:nowrap;
+}
+.offer-txt{font-size:13px;color:var(--text2)}
+
+/* ─── CONFIRMATION PAGE ─── */
+.confirm-page{padding:96px 24px 60px;max-width:580px;margin:0 auto;text-align:center}
+.confirm-lottie{font-size:80px;margin-bottom:8px;animation:bounce .6s ease both}
+@keyframes bounce{from{transform:scale(0) rotate(-10deg)}60%{transform:scale(1.15) rotate(3deg)}to{transform:scale(1) rotate(0)}}
+.confirm-h{font-size:32px;font-weight:900;color:var(--green);margin-bottom:6px}
+.confirm-sub{font-size:15px;color:var(--text2);margin-bottom:28px}
+.ticket-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;margin-bottom:20px;
+  position:relative;
+}
+.ticket-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg, var(--red), var(--orange), var(--yellow));
+}
+.ticket-top{padding:20px 24px;border-bottom:1px dashed var(--border2);display:flex;gap:14px;align-items:center;position:relative}
+.ticket-top::after{
+  content:'';position:absolute;right:-1px;bottom:-14px;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--darker);border-left:1px dashed var(--border2);
+}
+.ticket-top::before{
+  content:'';position:absolute;left:-1px;bottom:-14px;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--darker);border-right:1px dashed var(--border2);
+}
+.ticket-emoji{font-size:44px;flex-shrink:0}
+.ticket-info{}
+.ticket-ev-name{font-size:18px;font-weight:900;margin-bottom:4px}
+.ticket-meta-rows{display:flex;flex-direction:column;gap:4px}
+.ticket-meta-row{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.ticket-bottom{padding:20px 24px;display:flex;justify-content:space-between;align-items:center}
+.qr-area{text-align:center}
+.qr-box{
+  background:#fff;border-radius:10px;padding:8px;
+  width:110px;height:110px;margin:0 auto 6px;
+  display:flex;align-items:center;justify-content:center;
+}
+.qr-box svg{width:100%;height:100%}
+.qr-lbl{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.ticket-details-col{display:flex;flex-direction:column;gap:12px;flex:1;padding-left:20px}
+.td-item{}
+.td-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:2px}
+.td-val{font-size:14px;font-weight:800}
+.ticket-id{
+  background:var(--card2);border-top:1px solid var(--border);
+  padding:10px 24px;
+  font-family:'Roboto',monospace;font-size:12px;color:var(--text3);
+  letter-spacing:2px;text-align:center;
+}
+.confirm-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-outline{
+  background:transparent;border:2px solid var(--border2);
+  color:var(--text2);padding:11px 24px;border-radius:6px;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;
+}
+.btn-outline:hover{border-color:var(--red);color:var(--red)}
+
+/* ─── MY TICKETS ─── */
+.my-tickets-page{padding:96px 24px 60px;max-width:800px;margin:0 auto}
+.my-ticket-row{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;display:flex;
+  margin-bottom:14px;transition:all .2s;
+}
+.my-ticket-row:hover{border-color:rgba(225,29,72,.25)}
+.my-ticket-left{
+  width:90px;display:flex;align-items:center;justify-content:center;
+  font-size:44px;flex-shrink:0;
+  background:var(--card2);border-right:1px solid var(--border);
+}
+.my-ticket-main{flex:1;padding:16px 20px}
+.mtr-name{font-size:16px;font-weight:900;margin-bottom:6px}
+.mtr-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text2);margin-bottom:10px}
+.mtr-meta span{display:flex;align-items:center;gap:4px}
+.mtr-status{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:4px;font-size:11px;font-weight:800;
+}
+.status-green{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:var(--green)}
+.my-ticket-right{
+  padding:16px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;flex-shrink:0;
+  border-left:1px solid var(--border);
+}
+.my-ticket-price{font-size:20px;font-weight:900;color:var(--red)}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:var(--dark);border:1px solid var(--border2);
+  border-left:3px solid var(--green);
+  border-radius:8px;padding:14px 18px;min-width:280px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 16px 48px rgba(0,0,0,.6);
+  transform:translateX(130%) scale(.9);
+  transition:all .4s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.show{transform:translateX(0) scale(1)}
+.toast.err{border-left-color:var(--red)}
+.toast-icon{font-size:20px;flex-shrink:0}
+.toast-title{font-size:14px;font-weight:800;margin-bottom:2px}
+.toast-msg{font-size:12px;color:var(--text2)}
+
+/* ─── MODAL ─── */
+.modal-bg{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--dark);border:1px solid var(--border2);
+  border-radius:14px;width:90%;max-width:440px;max-height:90vh;overflow-y:auto;
+  padding:28px;position:relative;
+  animation:mpop .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes mpop{from{opacity:0;transform:scale(.92) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-close{
+  position:absolute;top:14px;right:14px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  color:var(--text2);width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all .2s;
+}
+.modal-close:hover{background:rgba(225,29,72,.15);color:var(--red)}
+.modal h2{font-size:22px;font-weight:900;margin-bottom:4px}
+.modal .sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.auth-tabs{display:flex;background:var(--card2);border-radius:8px;padding:4px;gap:0;margin-bottom:20px}
+.atab{flex:1;padding:9px;text-align:center;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;color:var(--text3);transition:all .2s}
+.atab.active{background:var(--red);color:#fff}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  .detail-body{grid-template-columns:1fr}
+  .checkout-layout{grid-template-columns:1fr}
+  .seat-layout{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .tsidebar{position:static}
+  .dm-content{flex-direction:column;align-items:flex-start}
+  .dm-poster{width:130px;height:175px}
+  .hero{height:280px}
+  .hero-slide{height:280px}
+  .hero-slide-content{padding:20px 24px}
+}
+@media(max-width:600px){
+  .city-banner{gap:0}
+  .hero-title{font-size:22px}
+  .topnav{padding:0 14px;gap:12px}
+  .tn-city{display:none}
+  .section{padding:24px 14px}
+  .ev-list-grid{padding:14px;gap:14px}
+  .seat-page-hd,.detail-body,.detail-masthead .dm-content{padding-left:16px;padding-right:16px}
+  .pay-opts{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="topnav" id="main-nav">
+  <div class="tn-logo" onclick="goPage('home')">
+    <div class="tn-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
+    <span class="tn-logo-name">Ticket<span>Wave</span></span>
+  </div>
+  <div class="tn-city" onclick="showToast('Select City','Feature coming soon 🏙️','📍')">
+    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+    Mumbai
+    <svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:var(--text2)"><path d="M7 10l5 5 5-5z"/></svg>
+  </div>
+  <div class="tn-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search-q" placeholder="Search for Movies, Events, Plays, Sports…"
+      onkeyup="if(event.key==='Enter') doSearch(this.value)">
+  </div>
+  <div class="tn-links">
+    <button class="tn-link" onclick="goPage('mytickets')">📋 My Bookings</button>
+    <button class="tn-link" onclick="showToast('ListYourShow','Feature coming soon!','🎪')">List your show</button>
+    <div id="nav-auth-area">
+      <button class="tn-link red-btn" onclick="openAuth()">Sign In</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════ CATEGORY BAR ═══════════ -->
+<div class="city-banner">
+  <div class="cat-tab active" onclick="catClick(this,'all')">Recommended</div>
+  <div class="cat-tab" onclick="catClick(this,'music')">🎵 Music</div>
+  <div class="cat-tab" onclick="catClick(this,'comedy')">🎭 Comedy</div>
+  <div class="cat-tab" onclick="catClick(this,'festival')">🎉 Festivals</div>
+  <div class="cat-tab" onclick="catClick(this,'sports')">⚽ Sports</div>
+  <div class="cat-tab" onclick="catClick(this,'theatre')">🎬 Theatre</div>
+  <div class="cat-tab" onclick="catClick(this,'workshop')">🎓 Workshops</div>
+  <div class="cat-tab" onclick="catClick(this,'kids')">🧒 Kids</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: HOME
+═══════════════════════════════════ -->
+<div class="page on" id="page-home">
+
+  <!-- HERO CAROUSEL -->
+  <div class="hero">
+    <div class="hero-slides" id="hero-slides">
+      <div class="hero-slide">
+        <div class="hero-slide-bg">🎸</div>
+        <div class="hero-slide-grad"></div>
+        <div class="hero-slide-content">
+          <div class="hero-badge">🔥 Trending</div>
+          <div class="hero-title">Sunburn Festival 2025</div>
+          <div class="hero-meta"><span>📅 Dec 27–29</span><span>📍 Goa</span><span>👥 50,000+ attending</span></div>
+          <button class="hero-cta" onclick="goDetail(EVENTS[0])">Book Tickets <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+      <div class="hero-slide">
+        <div class="hero-slide-bg">🎤</div>
+        <div class="hero-slide-grad"></div>
+        <div class="hero-slide-content">
+          <div class="hero-badge" style="background:#3b82f6">⭐ Special</div>
+          <div class="hero-title">Coldplay: Music of the Spheres</div>
+          <div class="hero-meta"><span>📅 Jan 18, 2026</span><span>📍 Mumbai</span><span>🌍 World Tour</span></div>
+          <button class="hero-cta" onclick="goDetail(EVENTS[2])">Book Tickets <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+      <div class="hero-slide">
+        <div class="hero-slide-bg">🎭</div>
+        <div class="hero-slide-grad"></div>
+        <div class="hero-slide-content">
+          <div class="hero-badge" style="background:#f59e0b;color:#000">😂 Comedy Night</div>
+          <div class="hero-title">Zakir Khan Live — New Show</div>
+          <div class="hero-meta"><span>📅 Nov 15, 2025</span><span>📍 Mumbai</span><span>🎭 Stand-up Comedy</span></div>
+          <button class="hero-cta" onclick="goDetail(EVENTS[1])">Book Tickets <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </div>
+    <div class="hero-arrows">
+      <div class="hero-arrow" onclick="slideTo(-1)">‹</div>
+      <div class="hero-arrow" onclick="slideTo(1)">›</div>
+    </div>
+    <div class="hero-dots" id="hero-dots"></div>
+  </div>
+
+  <!-- RECOMMENDED EVENTS -->
+  <div class="section">
+    <div class="sec-hd"><div class="sec-title">Recommended <span>Events</span></div><div class="sec-more" onclick="goPage('browse')">See All →</div></div>
+    <div class="hscroll" id="home-recommended"></div>
+  </div>
+
+  <!-- COMEDY SHOWS -->
+  <div class="section" style="padding-top:0">
+    <div class="sec-hd"><div class="sec-title">Comedy <span>Shows</span></div><div class="sec-more" onclick="goPageCat('comedy')">See All →</div></div>
+    <div class="hscroll" id="home-comedy"></div>
+  </div>
+
+  <!-- MUSIC CONCERTS -->
+  <div class="section" style="padding-top:0">
+    <div class="sec-hd"><div class="sec-title">Music <span>Concerts</span></div><div class="sec-more" onclick="goPageCat('music')">See All →</div></div>
+    <div class="hscroll" id="home-music"></div>
+  </div>
+
+  <!-- SPORTS -->
+  <div class="section" style="padding-top:0">
+    <div class="sec-hd"><div class="sec-title">Sports <span>Events</span></div><div class="sec-more" onclick="goPageCat('sports')">See All →</div></div>
+    <div class="hscroll" id="home-sports"></div>
+  </div>
+
+  <!-- FESTIVALS -->
+  <div class="section" style="padding-top:0">
+    <div class="sec-hd"><div class="sec-title">Festivals & <span>Experiences</span></div><div class="sec-more" onclick="goPageCat('festival')">See All →</div></div>
+    <div class="hscroll" id="home-festivals"></div>
+  </div>
+
+  <!-- INFO STRIPS -->
+  <div style="background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 24px;display:flex;gap:24px;flex-wrap:wrap;justify-content:space-around">
+    <div style="text-align:center"><div style="font-size:28px;margin-bottom:4px">⚡</div><div style="font-size:13px;font-weight:800">Instant Booking</div><div style="font-size:12px;color:var(--text2)">Confirmed in seconds</div></div>
+    <div style="text-align:center"><div style="font-size:28px;margin-bottom:4px">📱</div><div style="font-size:13px;font-weight:800">e-Tickets</div><div style="font-size:12px;color:var(--text2)">QR on your phone</div></div>
+    <div style="text-align:center"><div style="font-size:28px;margin-bottom:4px">🔒</div><div style="font-size:13px;font-weight:800">100% Secure</div><div style="font-size:12px;color:var(--text2)">256-bit SSL</div></div>
+    <div style="text-align:center"><div style="font-size:28px;margin-bottom:4px">🔄</div><div style="font-size:13px;font-weight:800">Easy Cancellation</div><div style="font-size:12px;color:var(--text2)">Up to 48hrs before</div></div>
+    <div style="text-align:center"><div style="font-size:28px;margin-bottom:4px">🤝</div><div style="font-size:13px;font-weight:800">Zero Fees</div><div style="font-size:12px;color:var(--text2)">No hidden charges</div></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="background:var(--dark);padding:32px 24px;border-top:1px solid var(--border)">
+    <div style="display:flex;gap:40px;flex-wrap:wrap;margin-bottom:24px">
+      <div style="flex:2;min-width:200px">
+        <div class="tn-logo" style="margin-bottom:10px;cursor:default">
+          <div class="tn-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
+          <span class="tn-logo-name">Ticket<span>Wave</span></span>
+        </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7;max-width:280px">India's most trusted live event ticketing platform. 2M+ tickets sold across 48 cities.</p>
+      </div>
+      <div style="flex:1;min-width:120px"><div style="font-size:13px;font-weight:800;margin-bottom:12px">Company</div><div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)"><a href="#" style="transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text2)'">About Us</a><a href="#" style="transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text2)'">Careers</a><a href="#" style="transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text2)'">Blog</a></div></div>
+      <div style="flex:1;min-width:120px"><div style="font-size:13px;font-weight:800;margin-bottom:12px">Help</div><div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)"><a href="#">Help Centre</a><a href="#">Refund Policy</a><a href="#">Privacy Policy</a></div></div>
+      <div style="flex:1;min-width:120px"><div style="font-size:13px;font-weight:800;margin-bottom:12px">Organizers</div><div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)"><a href="#">List Your Show</a><a href="#">Partner Program</a><a href="#">API Docs</a></div></div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div style="font-size:12px;color:var(--text3)">© 2025 TicketWave Technologies Pvt. Ltd. All rights reserved.</div>
+      <div style="display:flex;gap:8px">
+        <span style="background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--text3)">🔒 PCI DSS</span>
+        <span style="background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--text3)">🇮🇳 Made in India</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: BROWSE / LISTING
+═══════════════════════════════════ -->
+<div class="page" id="page-browse">
+  <div style="margin-top:96px">
+    <!-- FILTER BAR -->
+    <div class="filter-bar" id="browse-filter-bar">
+      <div class="flt" id="cat-flt">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3zm3 5h12v2H6zm3 5h6v2H9z"/></svg>
+        <select id="fc" onchange="browseFilt()">
+          <option value="all">All Categories</option>
+          <option value="music">🎵 Music</option>
+          <option value="comedy">🎭 Comedy</option>
+          <option value="festival">🎉 Festivals</option>
+          <option value="sports">⚽ Sports</option>
+          <option value="theatre">🎬 Theatre</option>
+          <option value="workshop">🎓 Workshops</option>
+        </select>
+      </div>
+      <div class="flt">
+        📍
+        <select id="fct" onchange="browseFilt()">
+          <option value="all">All Cities</option>
+          <option value="mumbai">Mumbai</option>
+          <option value="delhi">Delhi</option>
+          <option value="bangalore">Bangalore</option>
+          <option value="pune">Pune</option>
+          <option value="goa">Goa</option>
+          <option value="hyderabad">Hyderabad</option>
+        </select>
+      </div>
+      <div class="flt">
+        💰
+        <select id="fpr" onchange="browseFilt()">
+          <option value="all">Any Price</option>
+          <option value="low">Under ₹500</option>
+          <option value="mid">₹500–₹2,000</option>
+          <option value="high">₹2,000+</option>
+        </select>
+      </div>
+      <div class="flt">
+        🔃
+        <select id="fso" onchange="browseFilt()">
+          <option value="def">Sort: Relevance</option>
+          <option value="pa">Price: Low to High</option>
+          <option value="pd">Price: High to Low</option>
+          <option value="pop">Popularity</option>
+        </select>
+      </div>
+    </div>
+    <div style="padding:16px 24px 0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:20px;font-weight:900" id="browse-heading">All Events</div>
+      <div style="font-size:13px;color:var(--text2)" id="browse-count">8 events</div>
+    </div>
+    <div class="ev-list-grid" id="browse-grid"></div>
+    <div id="browse-empty" style="display:none;text-align:center;padding:80px 24px;color:var(--text2)">
+      <div style="font-size:56px;margin-bottom:12px">🔍</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px">No events found</div>
+      <div style="font-size:14px">Try different filters or search terms</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: EVENT DETAIL
+═══════════════════════════════════ -->
+<div class="page" id="page-detail">
+  <div id="detail-inner"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: SEAT SELECT
+═══════════════════════════════════ -->
+<div class="page" id="page-seats">
+  <div id="seats-inner"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: CHECKOUT
+═══════════════════════════════════ -->
+<div class="page" id="page-checkout">
+  <div id="checkout-inner"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: CONFIRMATION
+═══════════════════════════════════ -->
+<div class="page" id="page-confirm">
+  <div id="confirm-inner"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PAGE: MY TICKETS
+═══════════════════════════════════ -->
+<div class="page" id="page-mytickets">
+  <div class="my-tickets-page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <div style="font-size:24px;font-weight:900">My Bookings</div>
+        <div style="font-size:14px;color:var(--text2);margin-top:4px" id="booking-count">Loading…</div>
+      </div>
+    </div>
+    <div id="my-tickets-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════ AUTH MODAL ═══════════ -->
+<div class="modal-bg" id="auth-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('auth-modal')">✕</button>
+    <div class="tn-logo" style="margin-bottom:16px;cursor:default">
+      <div class="tn-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
+      <span class="tn-logo-name">Ticket<span>Wave</span></span>
+    </div>
+    <div class="auth-tabs">
+      <div class="atab active" id="at-in" onclick="authSwitch('in')">Sign In</div>
+      <div class="atab" id="at-up" onclick="authSwitch('up')">Register</div>
+    </div>
+    <div id="auth-form"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="ti">✅</span>
+  <div><div class="toast-title" id="tt"></div><div class="toast-msg" id="tm"></div></div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   DATA
+════════════════════════════════════════ */
+const EVENTS = [
+  { id:1, title:'Sunburn Festival 2025', sub:'Asia\'s biggest EDM festival', artist:'Martin Garrix, Hardwell & 80+ DJs',
+    cat:'festival', city:'goa', cityLabel:'Goa', venue:'Vagator Beach, Goa', date:'Dec 27–29, 2025', time:'4 PM Onwards',
+    emoji:'🎸', price:2499, orig:3499, sold:72,
+    lang:'Multi-genre', rating:4.8, votes:2341,
+    desc:'Asia\'s biggest electronic dance music festival returns to Goa for three nights of non-stop music across five magnificent stages. 80+ international DJs, stunning pyrotechnics, LED art installations, and an atmosphere like nowhere else in India.',
+    cast:[{e:'🎧',n:'Martin Garrix',r:'Headliner'},{e:'🎚️',n:'Hardwell',r:'Headliner'},{e:'🎵',n:'Afrojack',r:'DJ'},{e:'🎸',n:'Steve Aoki',r:'DJ'},{e:'🇮🇳',n:'Nucleya',r:'Local Act'}],
+    venues:[{n:'Main Stage — Vagator Beach',a:'Vagator, Goa',shows:['4:00 PM','6:00 PM','8:00 PM']},{n:'Arena Stage — Hilltop',a:'Anjuna, Goa',shows:['5:00 PM','7:00 PM','9:00 PM']}],
+    tickets:[{cat:'GENERAL',label:'General',price:2499,color:'#22c55e'},{cat:'PREMIUM',label:'Premium GA',price:4999,color:'#3b82f6'},{cat:'VIP',label:'VIP Recliner',price:12999,color:'#f97316'}],
+    tags:['Electronic','EDM','Beach'] },
+
+  { id:2, title:'Zakir Khan Live', sub:'New show: Sakht Launda', artist:'Zakir Khan',
+    cat:'comedy', city:'mumbai', cityLabel:'Mumbai', venue:'NSCI Dome, Mumbai', date:'Nov 15, 2025', time:'8:00 PM',
+    emoji:'🎭', price:799, orig:999, sold:91,
+    lang:'Hindi', rating:4.9, votes:1876,
+    desc:'The Sakht Launda of India is back with a brand new show. Expect relatable heartbreak stories, spot-on desi observations, and laughs that\'ll leave you breathless. Zakir Khan\'s comedy hits different — you don\'t just laugh, you feel seen.',
+    cast:[{e:'😂',n:'Zakir Khan',r:'Headliner'},{e:'🎤',n:'Rahul Subramanian',r:'Opening Act'}],
+    venues:[{n:'NSCI Dome',a:'Worli, Mumbai',shows:['6:30 PM','9:00 PM']},{n:'Nehru Centre',a:'Worli, Mumbai',shows:['7:00 PM']}],
+    tickets:[{cat:'SILVER',label:'Silver',price:799,color:'#94a3b8'},{cat:'GOLD',label:'Gold',price:1499,color:'#f59e0b'},{cat:'PLATINUM',label:'Platinum',price:2999,color:'#c084fc'}],
+    tags:['Stand-up','Hindi','Comedy'] },
+
+  { id:3, title:'Coldplay: Music of the Spheres', sub:'World Tour 2026 — India Stop', artist:'Coldplay',
+    cat:'music', city:'mumbai', cityLabel:'Mumbai', venue:'DY Patil Stadium', date:'Jan 18, 2026', time:'7:00 PM',
+    emoji:'🎤', price:3999, orig:3999, sold:98,
+    lang:'English', rating:5.0, votes:8902,
+    desc:'The moment India has waited years for. Coldplay\'s Music of the Spheres World Tour arrives at DY Patil Stadium for a night that will go down in history. LED eco-kinetic wristbands, an immersive production, and 30 years of anthems.',
+    cast:[{e:'🎤',n:'Chris Martin',r:'Vocalist'},{e:'🎸',n:'Jonny Buckland',r:'Guitar'},{e:'🥁',n:'Will Champion',r:'Drums'},{e:'🎹',n:'Guy Berryman',r:'Bass'}],
+    venues:[{n:'DY Patil Stadium',a:'Nerul, Mumbai',shows:['7:00 PM']}],
+    tickets:[{cat:'FLOOR',label:'Floor GA',price:4999,color:'#22c55e'},{cat:'LOWER',label:'Lower Bowl',price:7999,color:'#3b82f6'},{cat:'UPPER',label:'Upper Tier',price:3999,color:'#94a3b8'}],
+    tags:['Rock','Pop','Stadium'] },
+
+  { id:4, title:'IPL 2025: MI vs CSK', sub:'The El Clasico of Cricket', artist:'Mumbai Indians vs CSK',
+    cat:'sports', city:'mumbai', cityLabel:'Mumbai', venue:'Wankhede Stadium', date:'Mar 22, 2025', time:'7:30 PM',
+    emoji:'🏏', price:700, orig:700, sold:60,
+    lang:'Cricket', rating:4.7, votes:4521,
+    desc:'The greatest rivalry in Indian cricket. Mumbai Indians take on Chennai Super Kings in what promises to be a jaw-dropping T20 clash. The Wankhede is electric when these two meet — book early.',
+    cast:[{e:'🏏',n:'Rohit Sharma',r:'MI Captain'},{e:'🏏',n:'MS Dhoni',r:'CSK Captain'},{e:'⚡',n:'Jasprit Bumrah',r:'MI Bowler'},{e:'🎯',n:'Ravindra Jadeja',r:'CSK Allrounder'}],
+    venues:[{n:'Wankhede Stadium',a:'Marine Lines, Mumbai',shows:['7:30 PM']}],
+    tickets:[{cat:'NORTH',label:'North Stand',price:700,color:'#22c55e'},{cat:'EAST',label:'East Stand',price:1200,color:'#3b82f6'},{cat:'VIP',label:'VIP Box',price:8000,color:'#f59e0b'}],
+    tags:['Cricket','IPL','T20'] },
+
+  { id:5, title:'Prateek Kuhad Live', sub:'The Way That Lovers Do Tour', artist:'Prateek Kuhad',
+    cat:'music', city:'bangalore', cityLabel:'Bangalore', venue:'Phoenix Marketcity', date:'Oct 30, 2025', time:'7:30 PM',
+    emoji:'🎵', price:1299, orig:1499, sold:44,
+    lang:'Hindi/English', rating:4.9, votes:892,
+    desc:'One of India\'s most beloved indie artists brings his soulful world to Bangalore. An intimate evening of heartfelt songwriting, a voice that moves you, and songs you\'ll hum for weeks.',
+    cast:[{e:'🎵',n:'Prateek Kuhad',r:'Headliner'}],
+    venues:[{n:'Phoenix Marketcity Amphitheatre',a:'Whitefield, Bangalore',shows:['7:30 PM','9:00 PM']}],
+    tickets:[{cat:'GENERAL',label:'General',price:1299,color:'#22c55e'},{cat:'SEATED',label:'Seated',price:1999,color:'#3b82f6'},{cat:'VIP',label:'VIP Front',price:3499,color:'#f59e0b'}],
+    tags:['Indie','Folk','Intimate'] },
+
+  { id:6, title:'Hamlet — NSD Production', sub:'Shakespeare reimagined', artist:'National School of Drama',
+    cat:'theatre', city:'delhi', cityLabel:'Delhi', venue:'Kamani Auditorium', date:'Nov 8–12, 2025', time:'6:30 PM',
+    emoji:'🎬', price:599, orig:599, sold:35,
+    lang:'Hindi', rating:4.6, votes:234,
+    desc:'A stunning reimagining of Shakespeare\'s masterpiece by the National School of Drama. Original Indian musical score, contemporary costumes, and a powerful cast delivering a production that will linger long after.',
+    cast:[{e:'🎭',n:'Rajit Kapur',r:'Hamlet'},{e:'🎬',n:'Ratan Thiyam',r:'Director'}],
+    venues:[{n:'Kamani Auditorium',a:'Copernicus Marg, Delhi',shows:['6:30 PM']}],
+    tickets:[{cat:'STALLS',label:'Stalls',price:599,color:'#22c55e'},{cat:'CIRCLE',label:'Circle',price:899,color:'#3b82f6'},{cat:'BOX',label:'Box Seats',price:1599,color:'#f59e0b'}],
+    tags:['Shakespeare','Drama','NSD'] },
+
+  { id:7, title:'Street Photography Masterclass', sub:'1-day intensive with Raghu Rai', artist:'Raghu Rai & Prashant Godbole',
+    cat:'workshop', city:'pune', cityLabel:'Pune', venue:'Symbiosis Institute', date:'Oct 25, 2025', time:'9 AM–6 PM',
+    emoji:'📷', price:2999, orig:3999, sold:65,
+    lang:'English', rating:4.8, votes:89,
+    desc:'Spend a day with two of India\'s most celebrated photographers. Street field session, Lightroom editing workshop, and a live portfolio review. Limited to 50 participants for maximum engagement.',
+    cast:[{e:'📷',n:'Raghu Rai',r:'Master Photographer'},{e:'🎞️',n:'Prashant Godbole',r:'Co-Instructor'}],
+    venues:[{n:'Symbiosis Institute of Design',a:'Lavale, Pune',shows:['9:00 AM']}],
+    tickets:[{cat:'WORKSHOP',label:'Workshop Pass',price:2999,color:'#22c55e'}],
+    tags:['Photography','Workshop','Creative'] },
+
+  { id:8, title:'NH7 Weekender 2025', sub:'India\'s Happiest Music Festival', artist:'Indian Ocean, Ritviz & more',
+    cat:'festival', city:'pune', cityLabel:'Pune', venue:'Mahalunge, Pune', date:'Nov 22–24, 2025', time:'2 PM Onwards',
+    emoji:'🎪', price:1999, orig:2499, sold:55,
+    lang:'Multi-genre', rating:4.9, votes:3201,
+    desc:'India\'s happiest music festival is back. Three days of indie music, stunning art installations, amazing craft food, and pure sunshine. A safe, inclusive space that\'s perfect for everyone.',
+    cast:[{e:'🎸',n:'Indian Ocean',r:'Headliner'},{e:'🎵',n:'Ritviz',r:'Headliner'},{e:'☕',n:'When Chai Met Toast',r:'Featured'},{e:'🎤',n:'Prateek Kuhad',r:'Featured'}],
+    venues:[{n:'Mahalunge Festival Ground',a:'Mahalunge, Pune',shows:['2:00 PM','6:00 PM']}],
+    tickets:[{cat:'DAY',label:'Day Pass',price:1999,color:'#22c55e'},{cat:'WEEKEND',label:'Weekend Pass',price:4999,color:'#3b82f6'},{cat:'PREMIUM',label:'Premium Weekend',price:8999,color:'#f59e0b'}],
+    tags:['Indie','Multi-genre','Outdoor'] },
+];
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+const S = {
+  user:    JSON.parse(localStorage.getItem('tw_user')   || 'null'),
+  orders:  JSON.parse(localStorage.getItem('tw_orders') || '[]'),
+  wish:    JSON.parse(localStorage.getItem('tw_wish')   || '[]'),
+  ev:      null,
+  selectedDate: 0,
+  selectedVenue: 0,
+  selectedShow: null,
+  selectedTicketCat: 0,
+  selectedSeats: [],
+  qty: 1,
+  pendingNav: null,
+  slideIdx: 0,
+  slideTimer: null,
+};
+
+/* ════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+function goPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  const el = document.getElementById('page-' + name);
+  if (el) el.classList.add('on');
+  window.scrollTo({ top:0, behavior:'smooth' });
+  if (name==='home')     renderHome();
+  if (name==='browse')   renderBrowse();
+  if (name==='mytickets') renderMyTickets();
+}
+
+function goPageCat(cat) {
+  document.getElementById('fc').value = cat;
+  goPage('browse');
+  browseFilt();
+}
+
+function goDetail(ev) {
+  S.ev = ev; S.selectedDate = 0; S.selectedVenue = 0; S.selectedShow = null;
+  renderDetail(ev);
+  goPage('detail');
+}
+
+/* ════════════════════════════════════════
+   HOME
+════════════════════════════════════════ */
+function renderHome() {
+  renderHScroll('home-recommended', EVENTS);
+  renderHScroll('home-comedy',   EVENTS.filter(e => e.cat==='comedy'));
+  renderHScroll('home-music',    EVENTS.filter(e => e.cat==='music'));
+  renderHScroll('home-sports',   EVENTS.filter(e => e.cat==='sports'));
+  renderHScroll('home-festivals',EVENTS.filter(e => e.cat==='festival'));
+  buildHeroDots();
+  startSlider();
+}
+
+function renderHScroll(id, evs) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!evs.length) { el.innerHTML = `<div style="color:var(--text3);font-size:14px;padding:20px">No events in this category yet</div>`; return; }
+  el.innerHTML = evs.map(e => `
+  <div class="ev-card" onclick="goDetail(EVENTS.find(x=>x.id==${e.id}))">
+    <div class="ev-card-poster">
+      <div class="ev-card-poster-bg ${gradFor(e.cat)}" style="background:${bgFor(e.cat)}"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;z-index:1">${e.emoji}</div>
+      <div class="ev-card-poster-overlay"></div>
+      <div class="ev-card-poster-rating"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${e.rating}</div>
+      <div class="ev-card-poster-lang">${e.lang.substring(0,4).toUpperCase()}</div>
+      <div class="ev-card-poster-type" style="background:${typeColor(e.cat)};color:${typeTextColor(e.cat)}">${e.cat.toUpperCase()}</div>
+    </div>
+    <div class="ev-card-info">
+      <div class="ev-card-name">${e.title}</div>
+      <div class="ev-card-sub">${e.cityLabel} · ₹${e.price.toLocaleString('en-IN')}+</div>
+    </div>
+  </div>`).join('');
+}
+
+function bgFor(cat) {
+  const m = {music:'linear-gradient(135deg,#1a0840,#0d0a30)',comedy:'linear-gradient(135deg,#3a1a00,#1a0a00)',festival:'linear-gradient(135deg,#0a1a3e,#001a10)',sports:'linear-gradient(135deg,#3a0000,#1a0a00)',theatre:'linear-gradient(135deg,#001a3e,#002214)',workshop:'linear-gradient(135deg,#1a1800,#0a0a00)'};
+  return m[cat]||m.music;
+}
+function typeColor(cat){const m={music:'rgba(124,58,237,.8)',comedy:'rgba(245,158,11,.8)',festival:'rgba(6,182,212,.8)',sports:'rgba(225,29,72,.8)',theatre:'rgba(16,185,129,.8)',workshop:'rgba(249,115,22,.8)'};return m[cat]||m.music}
+function typeTextColor(cat){return cat==='comedy'?'#000':'#fff'}
+
+/* ════════════════════════════════════════
+   HERO CAROUSEL
+════════════════════════════════════════ */
+function buildHeroDots() {
+  const slides = document.querySelectorAll('.hero-slide');
+  const dotsEl = document.getElementById('hero-dots');
+  if (!dotsEl) return;
+  dotsEl.innerHTML = Array.from(slides).map((_,i) => `<div class="hero-dot ${i===0?'active':''}" onclick="setSlide(${i})"></div>`).join('');
+}
+function startSlider() {
+  clearInterval(S.slideTimer);
+  S.slideTimer = setInterval(() => slideTo(1), 4500);
+}
+function slideTo(dir) {
+  const slides = document.querySelectorAll('.hero-slide');
+  S.slideIdx = (S.slideIdx + dir + slides.length) % slides.length;
+  setSlide(S.slideIdx);
+}
+function setSlide(i) {
+  S.slideIdx = i;
+  const track = document.getElementById('hero-slides');
+  if (track) track.style.transform = `translateX(-${i*100}%)`;
+  document.querySelectorAll('.hero-dot').forEach((d,j) => d.classList.toggle('active', j===i));
+}
+
+/* ════════════════════════════════════════
+   BROWSE / LISTING
+════════════════════════════════════════ */
+function renderBrowse(evs) {
+  const list = evs || EVENTS;
+  const grid = document.getElementById('browse-grid');
+  const empty = document.getElementById('browse-empty');
+  if (!grid) return;
+  if (!list.length) { grid.innerHTML=''; grid.style.display='none'; empty.style.display='block'; return; }
+  empty.style.display='none'; grid.style.display='grid';
+  grid.innerHTML = list.map(e => `
+  <div style="cursor:pointer" onclick="goDetail(EVENTS.find(x=>x.id==${e.id}))">
+    <div class="ev-card" style="width:100%">
+      <div class="ev-card-poster" style="width:100%;height:240px">
+        <div style="position:absolute;inset:0;background:${bgFor(e.cat)}"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:80px;z-index:1">${e.emoji}</div>
+        <div class="ev-card-poster-overlay"></div>
+        <div class="ev-card-poster-rating"><svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:var(--yellow)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${e.rating}</div>
+        <div class="ev-card-poster-type" style="background:${typeColor(e.cat)};color:${typeTextColor(e.cat)}">${e.cat.toUpperCase()}</div>
+        ${e.sold > 80 ? `<div style="position:absolute;bottom:8px;right:8px;background:rgba(225,29,72,.85);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:3px;z-index:2">${e.sold}% SOLD</div>` : ''}
+      </div>
+      <div class="ev-card-info">
+        <div class="ev-card-name" style="white-space:normal;font-size:14px">${e.title}</div>
+        <div class="ev-card-sub">${e.cityLabel}</div>
+        <div style="font-size:13px;font-weight:800;color:var(--red);margin-top:4px">From ₹${e.price.toLocaleString('en-IN')}</div>
+      </div>
+    </div>
+  </div>`).join('');
+  document.getElementById('browse-count').textContent = `${list.length} event${list.length!==1?'s':''}`;
+}
+
+function browseFilt() {
+  const cat  = document.getElementById('fc').value;
+  const city = document.getElementById('fct').value;
+  const pr   = document.getElementById('fpr').value;
+  const so   = document.getElementById('fso').value;
+  let list = EVENTS.filter(e => {
+    if (cat!=='all' && e.cat!==cat) return false;
+    if (city!=='all' && e.city!==city) return false;
+    if (pr==='low'  && e.price>=500) return false;
+    if (pr==='mid'  && (e.price<500||e.price>2000)) return false;
+    if (pr==='high' && e.price<=2000) return false;
+    return true;
+  });
+  if (so==='pa')  list.sort((a,b)=>a.price-b.price);
+  if (so==='pd')  list.sort((a,b)=>b.price-a.price);
+  if (so==='pop') list.sort((a,b)=>b.sold-a.sold);
+  const catLabel = cat==='all'?'All Events': cat.charAt(0).toUpperCase()+cat.slice(1)+' Events';
+  document.getElementById('browse-heading').textContent = catLabel;
+  renderBrowse(list);
+}
+
+function doSearch(q) {
+  if (!q.trim()) return;
+  const r = EVENTS.filter(e => e.title.toLowerCase().includes(q.toLowerCase()) || e.artist.toLowerCase().includes(q.toLowerCase()) || e.cityLabel.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('fc').value = 'all';
+  goPage('browse');
+  renderBrowse(r);
+  document.getElementById('browse-heading').textContent = `Results for "${q}"`;
+}
+function catClick(el, cat) {
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if (cat==='all') { goPage('home'); return; }
+  goPageCat(cat);
+}
+
+/* ════════════════════════════════════════
+   EVENT DETAIL PAGE
+════════════════════════════════════════ */
+function renderDetail(ev) {
+  const wishActive = S.wish.includes(ev.id);
+  const soldOut = ev.sold >= 99;
+
+  // build dates (next 7 days)
+  const dates = [];
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  for (let i=0; i<7; i++) {
+    const d = new Date(now); d.setDate(now.getDate()+i);
+    dates.push({ day:days[d.getDay()], num:d.getDate(), mon:months[d.getMonth()] });
+  }
+
+  const html = `
+  <div style="margin-top:56px">
+    <!-- back btn -->
+    <div style="padding:10px 24px;background:var(--dark);border-bottom:1px solid var(--border)">
+      <button onclick="history.length>1?history.back():goPage('home')" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back
+      </button>
+    </div>
+
+    <!-- MASTHEAD -->
+    <div class="detail-masthead">
+      <div class="dm-bg">${ev.emoji}</div>
+      <div class="dm-overlay"></div>
+      <div class="dm-content">
+        <div class="dm-poster">
+          <div class="dm-poster-bg" style="background:${bgFor(ev.cat)}"></div>
+          <span class="dm-poster-emoji" style="font-size:72px">${ev.emoji}</span>
+        </div>
+        <div class="dm-info">
+          <div class="dm-genre-badges">
+            ${ev.tags.map(t=>`<span class="dm-genre">${t}</span>`).join('')}
+            <span class="dm-genre" style="border-color:rgba(225,29,72,.4);color:var(--red)">${ev.cat.toUpperCase()}</span>
+          </div>
+          <div class="dm-title">${ev.title}</div>
+          <div style="font-size:14px;color:var(--text2);margin-bottom:10px">${ev.sub}</div>
+          <div class="dm-rating-row">
+            <div class="dm-stars">
+              ${[1,2,3,4,5].map(s=>`<svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" style="fill:${s<=Math.round(ev.rating)?'var(--yellow)':'rgba(255,255,255,.15)'}"/></svg>`).join('')}
+            </div>
+            <span class="dm-rating-num">${ev.rating}</span>
+            <span class="dm-rating-ct">${ev.votes.toLocaleString()} votes</span>
+          </div>
+          <div class="dm-meta-row">
+            <div class="dm-meta-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>${ev.date}</div>
+            <div class="dm-meta-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>${ev.time}</div>
+            <div class="dm-meta-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>${ev.venue}</div>
+            <div class="dm-meta-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 4c1.93 0 3.68.71 5.03 1.87l-.92.93A5.95 5.95 0 0 0 12 5.97c-3.31 0-5.97 2.69-5.97 6s2.66 6 5.97 6c2.97 0 5.44-2.18 5.9-5.03H12V11h7.97c.07.33.03 1-.03 1C19.68 16.6 16.3 20 12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8z"/></svg>${ev.lang}</div>
+          </div>
+          <div class="dm-cta-row">
+            ${soldOut
+              ? `<button class="btn-book-big" style="opacity:.5;cursor:not-allowed" disabled>Sold Out</button>`
+              : `<button class="btn-book-big" onclick="requireAuthThen(()=>goSeats())">🎟️ Book Tickets</button>`
+            }
+            <button class="btn-wish ${wishActive?'active':''}" id="wish-btn" onclick="toggleWish(${ev.id})">
+              ${wishActive?'❤️ Wishlisted':'🤍 Wishlist'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="detail-tabs">
+      <div class="dtab active" onclick="dtabSwitch(this,'about')">About</div>
+      <div class="dtab" onclick="dtabSwitch(this,'venue')">Venue & Showtimes</div>
+      <div class="dtab" onclick="dtabSwitch(this,'cast')">Artists / Cast</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="detail-body">
+      <!-- MAIN CONTENT -->
+      <div>
+        <!-- ABOUT TAB -->
+        <div id="dtab-about">
+          <h3 style="font-size:16px;font-weight:900;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">About the Event</h3>
+          <p class="detail-desc">${ev.desc}</p>
+          <h3 style="font-size:16px;font-weight:900;margin-bottom:12px">Artists / Cast</h3>
+          <div class="detail-cast-grid">
+            ${ev.cast.map(c=>`
+            <div class="cast-chip">
+              <div class="cast-avatar">${c.e}</div>
+              <div class="cast-name">${c.n}</div>
+              <div class="cast-role">${c.r}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <!-- VENUE TAB (hidden initially) -->
+        <div id="dtab-venue" style="display:none">
+          <h3 style="font-size:16px;font-weight:900;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">Select Date & Venue</h3>
+          ${buildVenueDateSelector(ev, dates)}
+        </div>
+        <!-- CAST TAB (hidden initially) -->
+        <div id="dtab-cast" style="display:none">
+          <h3 style="font-size:16px;font-weight:900;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">Artists & Performers</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+            ${ev.cast.map(c=>`
+            <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px">
+              <div style="font-size:36px;width:56px;height:56px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">${c.e}</div>
+              <div>
+                <div style="font-weight:800;font-size:15px">${c.n}</div>
+                <div style="font-size:12px;color:var(--text2);margin-top:3px">${c.r}</div>
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div>
+        <!-- TICKET PRICES -->
+        <div class="venue-date-wrap" style="margin-bottom:14px">
+          <div class="vd-hd">Ticket Categories</div>
+          <div style="padding:14px 18px;display:flex;flex-direction:column;gap:8px">
+            ${ev.tickets.map(t=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div>
+                <div style="font-size:13px;font-weight:800">${t.label}</div>
+                <div style="width:8px;height:8px;border-radius:2px;background:${t.color};display:inline-block;margin-right:4px;margin-top:6px"></div>
+                <span style="font-size:11px;color:var(--text2)">${t.cat}</span>
+              </div>
+              <div style="font-size:15px;font-weight:900;color:var(--red)">₹${t.price.toLocaleString('en-IN')}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- QUICK DATE SELECTOR -->
+        <div class="venue-date-wrap">
+          <div class="vd-hd">Quick Book</div>
+          <div class="date-strip">
+            ${dates.slice(0,7).map((d,i)=>`
+            <div class="date-pill ${i===0?'active':''}" onclick="pickDate(this,${i})">
+              <div class="date-pill-day">${d.day}</div>
+              <div class="date-pill-num">${d.num}</div>
+              <div class="date-pill-mon">${d.mon}</div>
+            </div>`).join('')}
+          </div>
+          <div class="venue-list">
+            ${ev.venues.map((v,vi)=>`
+            <div class="venue-item ${vi===0?'active':''}" onclick="pickVenue(this,${vi})">
+              <div class="venue-name">${v.n}</div>
+              <div class="venue-addr">📍 ${v.a}</div>
+              <div class="showtime-row">
+                ${v.shows.map((sh,si)=>`
+                <div class="showtime ${si===0?'active':''} ${Math.random()>.7?'limited':''}" onclick="event.stopPropagation();pickShow(this,'${sh}')" id="show-${vi}-${si}">${sh}</div>`).join('')}
+              </div>
+            </div>`).join('')}
+          </div>
+          <div style="padding:14px 18px">
+            ${soldOut
+              ? `<button class="btn-proceed" disabled style="margin-top:0">Sold Out</button>`
+              : `<button class="btn-proceed" onclick="requireAuthThen(()=>goSeats())" style="margin-top:0">Book Now →</button>`
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('detail-inner').innerHTML = html;
+  S.selectedShow = ev.venues[0].shows[0];
+}
+
+function buildVenueDateSelector(ev, dates) {
+  return `
+  <div style="margin-bottom:16px">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px">SELECT DATE</div>
+    <div class="date-strip" style="padding:0">
+      ${dates.map((d,i)=>`
+      <div class="date-pill ${i===0?'active':''}" onclick="pickDate(this,${i})">
+        <div class="date-pill-day">${d.day}</div>
+        <div class="date-pill-num">${d.num}</div>
+        <div class="date-pill-mon">${d.mon}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+  ${ev.venues.map((v,vi)=>`
+  <div class="venue-item ${vi===0?'active':''}" onclick="pickVenue(this,${vi})" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="venue-name">${v.n}</div>
+        <div class="venue-addr">📍 ${v.a}</div>
+      </div>
+      <div style="font-size:11px;color:var(--green);font-weight:700">4.2 ★</div>
+    </div>
+    <div style="margin:8px 0 4px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:1px">Available Shows</div>
+    <div class="showtime-row">
+      ${v.shows.map((sh,si)=>`
+      <div class="showtime ${si===0&&vi===0?'active':''}" onclick="event.stopPropagation();pickShow(this,'${sh}')">${sh}</div>`).join('')}
+    </div>
+  </div>`).join('')}`;
+}
+
+function dtabSwitch(el, tab) {
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['about','venue','cast'].forEach(t => {
+    const e = document.getElementById('dtab-'+t);
+    if (e) e.style.display = t===tab ? 'block' : 'none';
+  });
+}
+
+function pickDate(el, i) {
+  document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active'); S.selectedDate = i;
+}
+function pickVenue(el, i) {
+  document.querySelectorAll('.venue-item').forEach(v => v.classList.remove('active'));
+  el.classList.add('active'); S.selectedVenue = i;
+}
+function pickShow(el, sh) {
+  document.querySelectorAll('.showtime').forEach(s => s.classList.remove('active'));
+  el.classList.add('active'); S.selectedShow = sh;
+}
+function toggleWish(id) {
+  const btn = document.getElementById('wish-btn');
+  if (S.wish.includes(id)) {
+    S.wish = S.wish.filter(x => x!==id);
+    if (btn) btn.innerHTML = '🤍 Wishlist';
+    showToast('Removed','From your wishlist','💔');
+  } else {
+    S.wish.push(id);
+    if (btn) btn.innerHTML = '❤️ Wishlisted';
+    showToast('Added!','Saved to wishlist ✨','❤️');
+  }
+  localStorage.setItem('tw_wish', JSON.stringify(S.wish));
+}
+
+/* ════════════════════════════════════════
+   SEAT SELECTION PAGE
+════════════════════════════════════════ */
+function goSeats() {
+  S.selectedSeats = []; S.selectedTicketCat = 0;
+  renderSeats();
+  goPage('seats');
+}
+
+function renderSeats() {
+  const ev = S.ev;
+  const venue = ev.venues[S.selectedVenue];
+  const show  = S.selectedShow || venue.shows[0];
+
+  const html = `
+  <div class="seat-page">
+    <div class="seat-page-hd">
+      <div>
+        <h2>${ev.title}</h2>
+        <p>${venue.n} · ${show}</p>
+      </div>
+      <button onclick="goPage('detail')" style="background:none;border:1px solid var(--border);color:var(--text2);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700">← Change</button>
+    </div>
+
+    <div class="seat-layout">
+      <!-- SEAT MAP -->
+      <div>
+        <div class="screen-wrap">
+          <div class="screen-bar"></div>
+          <div class="screen-lbl">Screen / Stage this side</div>
+        </div>
+        <div class="seat-legend">
+          <div class="sleg"><div class="sleg-sq" style="background:#1d4e2e;border:1px solid #22c55e40"></div>${ev.tickets[0]?.label||'General'} ₹${ev.tickets[0]?.price||0}</div>
+          ${ev.tickets[1] ? `<div class="sleg"><div class="sleg-sq" style="background:#1a2e4e;border:1px solid #3b82f640"></div>${ev.tickets[1].label} ₹${ev.tickets[1].price}</div>` : ''}
+          ${ev.tickets[2] ? `<div class="sleg"><div class="sleg-sq" style="background:#2e1a1a;border:1px solid #f9731640"></div>${ev.tickets[2].label} ₹${ev.tickets[2].price}</div>` : ''}
+          <div class="sleg"><div class="sleg-sq" style="background:var(--yellow)"></div>Selected</div>
+          <div class="sleg"><div class="sleg-sq" style="background:#2a2a3a;border:1px solid #3a3a4a"></div>Taken</div>
+        </div>
+
+        ${buildFullSeatMap(ev)}
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="tsidebar">
+        <div class="ts-title">Your Tickets</div>
+        <div class="ts-sub">Select seats on the map</div>
+        <div class="ts-ev-row">
+          <span class="ts-ev-emoji">${ev.emoji}</span>
+          <div>
+            <div class="ts-ev-name">${ev.title}</div>
+            <div class="ts-ev-sub">${venue.n} · ${show}</div>
+          </div>
+        </div>
+        <div class="ts-seats" id="seat-summary">No seats selected</div>
+        <div class="ts-divider"></div>
+        <div class="ts-row"><span>Category</span><span id="seat-cat-lbl">—</span></div>
+        <div class="ts-row"><span>Tickets</span><span id="seat-ct">0</span></div>
+        <div class="ts-row"><span>Subtotal</span><span id="seat-sub">₹0</span></div>
+        <div class="ts-row"><span>GST (18%)</span><span id="seat-gst">₹0</span></div>
+        <div class="ts-divider"></div>
+        <div class="ts-total"><span>Total</span><span id="seat-total" style="color:var(--red)">₹0</span></div>
+        <button class="btn-proceed" id="proceed-btn" onclick="goCheckout()" disabled>Select Seats to Proceed</button>
+        <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--text3)">🔒 Secured by RazorPay</div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('seats-inner').innerHTML = html;
+}
+
+function buildFullSeatMap(ev) {
+  const rows = ['A','B','C','D','E','F','G','H'];
+  const cols = 14;
+  // Randomly taken seats (deterministic based on event id)
+  const takenMap = new Set();
+  let seed = ev.id * 17;
+  for (let i=0;i<30;i++) { seed=(seed*1103515245+12345)&0x7fffffff; takenMap.add(seed%rows.length*cols+seed%cols); }
+
+  const sections = [
+    { label: ev.tickets[2] ? `${ev.tickets[2].label.toUpperCase()} (₹${ev.tickets[2].price})` : null, type:'recliner', rows:['A','B'] },
+    { label: ev.tickets[1] ? `${ev.tickets[1].label.toUpperCase()} (₹${ev.tickets[1].price})` : null, type:'premium', rows:['C','D','E'] },
+    { label: `${ev.tickets[0].label.toUpperCase()} (₹${ev.tickets[0].price})`, type:'avail', rows:['F','G','H'] },
+  ];
+
+  let html = '';
+  sections.forEach(sec => {
+    if (!sec.label) return;
+    html += `<div class="seat-section-label">${sec.label}</div>`;
+    html += `<div class="seats-grid">`;
+    sec.rows.forEach(r => {
+      html += `<div class="seat-row-wrap"><span class="seat-row-lbl">${r}</span>`;
+      for (let c=1;c<=cols;c++) {
+        const idx = rows.indexOf(r)*cols + c;
+        const taken = takenMap.has(idx % 200);
+        const cls   = taken ? 'taken' : sec.type;
+        const price = sec.type==='recliner' ? ev.tickets[2]?.price : (sec.type==='premium' ? ev.tickets[1]?.price : ev.tickets[0]?.price);
+        const cat   = sec.type==='recliner' ? 2 : (sec.type==='premium' ? 1 : 0);
+        html += `<div class="seat ${cls}" data-id="${r}${c}" data-price="${price||0}" data-cat="${cat}" onclick="${!taken?`seatClick(this)`:''}"></div>`;
+        if (c===7) html += `<div class="seat-gap"></div>`;
+      }
+      html += `<span class="seat-row-lbl">${r}</span></div>`;
+    });
+    html += `</div>`;
+  });
+  return html;
+}
+
+function seatClick(el) {
+  if (el.classList.contains('taken')) return;
+  const id    = el.dataset.id;
+  const price = parseInt(el.dataset.price);
+  const cat   = parseInt(el.dataset.cat);
+  if (el.classList.contains('sel')) {
+    el.classList.remove('sel');
+    el.classList.add(['avail','premium','recliner'][cat]);
+    S.selectedSeats = S.selectedSeats.filter(s => s.id !== id);
+  } else {
+    if (S.selectedSeats.length >= 10) { showToast('Max 10 seats','You can book up to 10 seats at once','⚠️'); return; }
+    el.classList.remove('avail','premium','recliner');
+    el.classList.add('sel');
+    S.selectedSeats.push({ id, price, cat });
+  }
+  updateSeatSidebar();
+}
+
+function updateSeatSidebar() {
+  const seats = S.selectedSeats;
+  const sub = seats.reduce((s,x) => s+x.price, 0);
+  const gst = Math.round(sub*.18);
+  const tot = sub+gst;
+  const fmt = n => `₹${n.toLocaleString('en-IN')}`;
+  const setText = (id,v) => { const e=document.getElementById(id); if(e)e.textContent=v; };
+  setText('seat-summary', seats.length ? seats.map(s=>s.id).join(', ') : 'No seats selected');
+  setText('seat-ct', seats.length);
+  setText('seat-sub', fmt(sub));
+  setText('seat-gst', fmt(gst));
+  setText('seat-total', fmt(tot));
+  if (seats.length) {
+    const ev = S.ev;
+    const cats = [...new Set(seats.map(s=>s.cat))];
+    setText('seat-cat-lbl', cats.map(c=>ev.tickets[c]?.label||'—').join(', '));
+  } else {
+    setText('seat-cat-lbl','—');
+  }
+  const btn = document.getElementById('proceed-btn');
+  if (btn) {
+    btn.disabled = !seats.length;
+    btn.textContent = seats.length ? `Proceed to Payment (${fmt(tot)})` : 'Select Seats to Proceed';
+  }
+}
+
+/* ════════════════════════════════════════
+   CHECKOUT
+════════════════════════════════════════ */
+function goCheckout() {
+  if (!S.selectedSeats.length) { showToast('No seats','Please select at least 1 seat','⚠️'); return; }
+  renderCheckout(1);
+  goPage('checkout');
+}
+
+function renderCheckout(step) {
+  const ev     = S.ev;
+  const venue  = ev.venues[S.selectedVenue];
+  const show   = S.selectedShow || venue.shows[0];
+  const seats  = S.selectedSeats;
+  const sub    = seats.reduce((s,x)=>s+x.price,0);
+  const gst    = Math.round(sub*.18);
+  const cwFee  = 20;
+  const total  = sub+gst+cwFee;
+  const fmt    = n=>`₹${n.toLocaleString('en-IN')}`;
+
+  const orderSummary = `
+  <div class="checkout-card">
+    <h3>Order Summary</h3>
+    <div class="ts-ev-row" style="margin-bottom:14px">
+      <span class="ts-ev-emoji">${ev.emoji}</span>
+      <div><div class="ts-ev-name">${ev.title}</div><div class="ts-ev-sub">${venue.n} · ${show}</div></div>
+    </div>
+    <div style="background:var(--card2);border-radius:8px;padding:12px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">SEATS SELECTED</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${seats.map(s=>`<span style="background:var(--yellow);color:#000;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:800">${s.id}</span>`).join('')}
+      </div>
+    </div>
+    <div class="ts-row"><span>Subtotal (${seats.length} ticket${seats.length>1?'s':''})</span><span>${fmt(sub)}</span></div>
+    <div class="ts-row"><span>GST (18%)</span><span>${fmt(gst)}</span></div>
+    <div class="ts-row"><span>Convenience Fee</span><span>${fmt(cwFee)}</span></div>
+    <div class="ts-divider"></div>
+    <div class="ts-total"><span>Total Amount</span><span style="color:var(--red)">${fmt(total)}</span></div>
+  </div>`;
+
+  let mainContent = '';
+  if (step === 1) {
+    mainContent = `
+    <div class="checkout-card">
+      <h3>Contact Details</h3>
+      <div class="form-grid">
+        <div class="fg"><label>First Name</label><input type="text" id="fn" value="${S.user?.name?.split(' ')[0]||''}" placeholder="Arjun"></div>
+        <div class="fg"><label>Last Name</label><input type="text" id="ln" value="${S.user?.name?.split(' ').slice(1).join(' ')||''}" placeholder="Sharma"></div>
+        <div class="fg"><label>Email</label><input type="email" id="em" value="${S.user?.email||''}" placeholder="you@example.com"></div>
+        <div class="fg"><label>Mobile Number</label><input type="tel" id="ph" value="${S.user?.phone||''}" placeholder="+91 98765 43210"></div>
+      </div>
+      <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px 14px;margin-top:12px;font-size:13px;color:var(--green)">
+        📱 Booking confirmation will be sent via email & SMS
+      </div>
+    </div>
+    <button class="btn-book-big" style="border-radius:6px;padding:14px 32px" onclick="checkoutStep2()">Continue to Payment →</button>`;
+  } else if (step === 2) {
+    mainContent = `
+    <div class="offer-strip">
+      <span class="offer-tag">OFFER</span>
+      <span class="offer-txt">Use <strong>TWFIRST</strong> — Get 10% off up to ₹200 on your first booking!</span>
+    </div>
+    <div class="checkout-card">
+      <h3>Choose Payment Method</h3>
+      <div class="pay-opts">
+        <div class="pay-opt chosen" onclick="choosePay(this)"><span class="pay-icon">💳</span>Credit / Debit Card</div>
+        <div class="pay-opt" onclick="choosePay(this)"><span class="pay-icon">📱</span>UPI</div>
+        <div class="pay-opt" onclick="choosePay(this)"><span class="pay-icon">🏦</span>Net Banking</div>
+        <div class="pay-opt" onclick="choosePay(this)"><span class="pay-icon">💰</span>Wallets</div>
+      </div>
+      <div id="pay-input-area">
+        <div class="form-grid">
+          <div class="fg full"><label>Card Number</label><input type="text" placeholder="1234  5678  9012  3456" maxlength="19" oninput="fmtCard(this)"></div>
+          <div class="fg"><label>Expiry Date</label><input type="text" placeholder="MM / YY" maxlength="7" oninput="fmtExp(this)"></div>
+          <div class="fg"><label>CVV</label><input type="password" placeholder="•••" maxlength="3"></div>
+          <div class="fg full"><label>Name on Card</label><input type="text" value="${S.user?.name||''}"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">
+        🔒 Your payment info is encrypted with 256-bit SSL
+      </div>
+    </div>
+    <button class="btn-book-big" style="border-radius:6px;padding:14px 32px;width:100%" id="pay-btn" onclick="processPayment(${total})">
+      Pay ${fmt(total)} Securely →
+    </button>`;
+  }
+
+  const stepsHTML = `
+  <div class="checkout-step-hd">
+    <div class="step-circle ${step>=1?'':'inactive'}">1</div>
+    <div class="step-line ${step>=2?'done':''}"></div>
+    <div class="step-circle ${step>=2?'':'inactive'}">2</div>
+    <div class="step-line ${step>=3?'done':''}"></div>
+    <div class="step-circle ${step>=3?'':'inactive'}">3</div>
+  </div>
+  <div style="display:flex;gap:0;justify-content:space-between;font-size:12px;font-weight:700;color:var(--text3);margin-bottom:24px;padding:0 4px">
+    <span style="color:${step>=1?'var(--text)':'var(--text3)'}">Details</span>
+    <span style="color:${step>=2?'var(--text)':'var(--text3)'}">Payment</span>
+    <span style="color:${step>=3?'var(--text)':'var(--text3)'}">Confirm</span>
+  </div>`;
+
+  document.getElementById('checkout-inner').innerHTML = `
+  <div class="checkout-layout">
+    <div>
+      <div style="margin-bottom:20px">
+        <button onclick="goPage('seats')" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px;margin-bottom:16px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Back to seats
+        </button>
+        ${stepsHTML}
+        ${mainContent}
+      </div>
+    </div>
+    <div>${orderSummary}</div>
+  </div>`;
+}
+
+function checkoutStep2() {
+  const fn = document.getElementById('fn')?.value;
+  const em = document.getElementById('em')?.value;
+  if (!fn||!em) { showToast('Fill details','Name & email are required','⚠️'); return; }
+  renderCheckout(2);
+}
+
+function choosePay(el) {
+  document.querySelectorAll('.pay-opt').forEach(p=>p.classList.remove('chosen'));
+  el.classList.add('chosen');
+  const method = el.textContent.trim();
+  const area = document.getElementById('pay-input-area');
+  if (!area) return;
+  if (method.includes('UPI')) {
+    area.innerHTML = `<div class="fg"><label>UPI ID</label><input type="text" placeholder="yourname@upi" autofocus></div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      ${['GPay','PhonePe','Paytm','BHIM'].map(u=>`<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">${u}</div>`).join('')}
+    </div>`;
+  } else if (method.includes('Net Banking')) {
+    area.innerHTML = `<div class="fg"><label>Select Your Bank</label><select style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:11px 13px;font-size:14px;outline:none"><option>HDFC Bank</option><option>ICICI Bank</option><option>State Bank of India</option><option>Axis Bank</option><option>Kotak Mahindra</option><option>Yes Bank</option></select></div>`;
+  } else if (method.includes('Wallet')) {
+    area.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      ${['Paytm Wallet','PhonePe Wallet','Amazon Pay','MobiKwik','Ola Money','Free Charge'].map(w=>`<div style="background:var(--card2);border:2px solid var(--border);border-radius:8px;padding:12px 8px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s" onclick="this.style.borderColor='var(--red)'">${w}</div>`).join('')}
+    </div>`;
+  } else {
+    area.innerHTML = `<div class="form-grid">
+      <div class="fg full"><label>Card Number</label><input type="text" placeholder="1234  5678  9012  3456" maxlength="19" oninput="fmtCard(this)" autofocus></div>
+      <div class="fg"><label>Expiry Date</label><input type="text" placeholder="MM / YY" maxlength="7" oninput="fmtExp(this)"></div>
+      <div class="fg"><label>CVV</label><input type="password" placeholder="•••" maxlength="3"></div>
+      <div class="fg full"><label>Name on Card</label><input type="text" value="${S.user?.name||''}"></div>
+    </div>`;
+  }
+}
+
+function fmtCard(i){ let v=i.value.replace(/\D/g,'').substring(0,16); i.value=v.replace(/(.{4})/g,'$1  ').trim(); }
+function fmtExp(i) { let v=i.value.replace(/\D/g,''); if(v.length>=2) v=v.substring(0,2)+' / '+v.substring(2,4); i.value=v; }
+
+function processPayment(total) {
+  const btn = document.getElementById('pay-btn');
+  if (btn) { btn.innerHTML='⏳ Processing Payment…'; btn.disabled=true; btn.style.opacity='.7'; }
+  setTimeout(() => {
+    const oid = 'TW' + Date.now().toString(36).toUpperCase();
+    const ev = S.ev;
+    const venue = ev.venues[S.selectedVenue];
+    const order = {
+      id:oid, ev, venue:venue.n, show:S.selectedShow||venue.shows[0],
+      seats:S.selectedSeats.map(s=>s.id), total,
+      date:new Date().toLocaleDateString('en-IN'), user:S.user,
+    };
+    S.orders.push(order);
+    localStorage.setItem('tw_orders', JSON.stringify(S.orders));
+    renderConfirm(order);
+    goPage('confirm');
+  }, 2500);
+}
+
+/* ════════════════════════════════════════
+   CONFIRMATION PAGE
+════════════════════════════════════════ */
+function renderConfirm(order) {
+  const fmt = n=>`₹${n.toLocaleString('en-IN')}`;
+  document.getElementById('confirm-inner').innerHTML = `
+  <div class="confirm-page">
+    <div class="confirm-lottie">🎉</div>
+    <div class="confirm-h">Booking Confirmed!</div>
+    <div class="confirm-sub">Your e-tickets have been sent to <strong>${order.user?.email||'your email'}</strong></div>
+
+    <div class="ticket-card">
+      <div class="ticket-top">
+        <span class="ticket-emoji">${order.ev.emoji}</span>
+        <div class="ticket-info">
+          <div class="ticket-ev-name">${order.ev.title}</div>
+          <div class="ticket-meta-rows">
+            <div class="ticket-meta-row">📍 ${order.venue}</div>
+            <div class="ticket-meta-row">📅 ${order.ev.date} · ${order.show}</div>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-bottom">
+        <div class="qr-area">
+          <div class="qr-box">
+            <svg viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="white"/>
+              ${genQR()}
+            </svg>
+          </div>
+          <div class="qr-lbl">Scan at Entry</div>
+        </div>
+        <div class="ticket-details-col">
+          <div class="td-item"><div class="td-lbl">Seats</div><div class="td-val" style="display:flex;gap:4px;flex-wrap:wrap">${order.seats.map(s=>`<span style="background:var(--yellow);color:#000;padding:2px 6px;border-radius:3px;font-size:12px;font-weight:800">${s}</span>`).join('')}</div></div>
+          <div class="td-item"><div class="td-lbl">Tickets</div><div class="td-val">${order.seats.length} ticket${order.seats.length>1?'s':''}</div></div>
+          <div class="td-item"><div class="td-lbl">Amount Paid</div><div class="td-val" style="color:var(--red)">${fmt(order.total)}</div></div>
+          <div class="td-item"><div class="td-lbl">Booking Date</div><div class="td-val">${order.date}</div></div>
+        </div>
+      </div>
+      <div class="ticket-id">${order.id}</div>
+    </div>
+
+    <div class="confirm-actions">
+      <button class="btn-outline" onclick="goPage('mytickets')">📋 My Bookings</button>
+      <button class="btn-bms" style="padding:12px 24px;font-size:14px" onclick="goPage('home')">Browse More Events</button>
+    </div>
+  </div>`;
+}
+
+function genQR() {
+  let r='';
+  for(let i=0;i<10;i++) for(let j=0;j<10;j++) if(Math.random()>.45) r+=`<rect x="${j*10+1}" y="${i*10+1}" width="9" height="9" fill="#111"/>`;
+  ['1,1','1,61','61,1'].forEach(p=>{
+    const[x,y]=p.split(',');
+    r+=`<rect x="${x}" y="${y}" width="28" height="28" rx="3" fill="#111"/><rect x="${+x+4}" y="${+y+4}" width="20" height="20" rx="2" fill="white"/><rect x="${+x+7}" y="${+y+7}" width="14" height="14" rx="1" fill="#111"/>`;
+  });
+  return r;
+}
+
+/* ════════════════════════════════════════
+   MY TICKETS
+════════════════════════════════════════ */
+function renderMyTickets() {
+  const list = document.getElementById('my-tickets-list');
+  const ct   = document.getElementById('booking-count');
+  if (!S.user) {
+    list.innerHTML = `<div style="text-align:center;padding:80px;color:var(--text2)"><div style="font-size:56px;margin-bottom:12px">🎟️</div><div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">Sign in to see your bookings</div><button class="btn-bms" onclick="openAuth()" style="margin-top:8px;padding:12px 28px;font-size:15px">Sign In</button></div>`;
+    if (ct) ct.textContent = '';
+    return;
+  }
+  if (!S.orders.length) {
+    list.innerHTML = `<div style="text-align:center;padding:80px;color:var(--text2)"><div style="font-size:56px;margin-bottom:12px">🎟️</div><div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">No bookings yet</div><button class="btn-bms" onclick="goPage('home')" style="margin-top:8px;padding:12px 28px;font-size:15px">Browse Events</button></div>`;
+    if (ct) ct.textContent = '0 bookings';
+    return;
+  }
+  if (ct) ct.textContent = `${S.orders.length} booking${S.orders.length>1?'s':''}`;
+  const fmt = n=>`₹${n.toLocaleString('en-IN')}`;
+  list.innerHTML = S.orders.map(o=>`
+  <div class="my-ticket-row">
+    <div class="my-ticket-left">${o.ev.emoji}</div>
+    <div class="my-ticket-main">
+      <div class="mtr-name">${o.ev.title}</div>
+      <div class="mtr-meta">
+        <span>📅 ${o.ev.date}</span>
+        <span>⏰ ${o.show}</span>
+        <span>📍 ${o.venue}</span>
+        <span>🪑 ${o.seats.join(', ')}</span>
+      </div>
+      <span class="mtr-status status-green">✓ Confirmed</span>
+    </div>
+    <div class="my-ticket-right">
+      <div class="my-ticket-price">${fmt(o.total)}</div>
+      <button class="btn-bms" onclick="viewTicketQR('${o.id}')" style="font-size:12px;padding:6px 14px">View QR</button>
+      <button style="background:transparent;border:1px solid rgba(225,29,72,.3);color:var(--red);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer" onclick="cancelOrder('${o.id}')">Cancel</button>
+    </div>
+  </div>`).join('');
+}
+
+function viewTicketQR(oid) {
+  const o = S.orders.find(x=>x.id===oid);
+  if (!o) return;
+  // reuse confirm modal style
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg open';
+  modal.innerHTML = `<div class="modal" style="text-align:center">
+    <button class="modal-close" onclick="this.closest('.modal-bg').remove()">✕</button>
+    <div style="font-size:40px;margin-bottom:6px">${o.ev.emoji}</div>
+    <div style="font-size:18px;font-weight:900;margin-bottom:4px">${o.ev.title}</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px">${o.venue} · ${o.show}</div>
+    <div class="qr-box" style="margin:0 auto 12px"><svg viewBox="0 0 100 100" width="140" height="140"><rect width="100" height="100" fill="white"/>${genQR()}</svg></div>
+    <div style="font-family:monospace;font-size:12px;color:var(--text3);letter-spacing:2px;margin-bottom:16px">${o.id}</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <span style="background:var(--yellow);color:#000;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:800">${o.seats.join('  ')}</span>
+    </div>
+  </div>`;
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+function cancelOrder(oid) {
+  if (!confirm('Cancel this ticket? A full refund will be processed in 3–5 days.')) return;
+  S.orders = S.orders.filter(o=>o.id!==oid);
+  localStorage.setItem('tw_orders', JSON.stringify(S.orders));
+  renderMyTickets();
+  showToast('Booking Cancelled','Refund in 3–5 business days','↩️');
+}
+
+/* ════════════════════════════════════════
+   AUTH
+════════════════════════════════════════ */
+function openAuth() { authSwitch('in'); document.getElementById('auth-modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open')); });
+
+function authSwitch(tab) {
+  document.getElementById('at-in').classList.toggle('active', tab==='in');
+  document.getElementById('at-up').classList.toggle('active', tab==='up');
+  const f = document.getElementById('auth-form');
+  if (tab==='in') {
+    f.innerHTML = `
+    <div class="fg" style="margin-bottom:14px"><label>Email Address</label><input type="email" id="ai-e" placeholder="you@example.com" autofocus></div>
+    <div class="fg" style="margin-bottom:20px"><label>Password</label><input type="password" id="ai-p" placeholder="••••••••"></div>
+    <button class="btn-book-big" style="width:100%;border-radius:6px;padding:13px" onclick="doLogin()">Sign In</button>
+    <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--text2)">Don't have an account? <a style="color:var(--red);cursor:pointer;font-weight:700" onclick="authSwitch('up')">Register</a></p>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:12px"><hr style="flex:1;border:none;border-top:1px solid var(--border)">or<hr style="flex:1;border:none;border-top:1px solid var(--border)"></div>
+    <button onclick="demoLogin()" style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text2);padding:12px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">🎭 Use Demo Account</button>`;
+  } else {
+    f.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="fg"><label>First Name</label><input type="text" id="au-fn" placeholder="Arjun" autofocus></div>
+      <div class="fg"><label>Last Name</label><input type="text" id="au-ln" placeholder="Sharma"></div>
+    </div>
+    <div class="fg" style="margin-bottom:14px"><label>Email</label><input type="email" id="au-em" placeholder="you@example.com"></div>
+    <div class="fg" style="margin-bottom:14px"><label>Mobile</label><input type="tel" id="au-ph" placeholder="+91 98765 43210"></div>
+    <div class="fg" style="margin-bottom:20px"><label>Password</label><input type="password" id="au-pw" placeholder="Min 8 chars"></div>
+    <button class="btn-book-big" style="width:100%;border-radius:6px;padding:13px" onclick="doSignUp()">Create Account</button>
+    <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--text2)">Already registered? <a style="color:var(--red);cursor:pointer;font-weight:700" onclick="authSwitch('in')">Sign In</a></p>`;
+  }
+}
+
+function doLogin() {
+  const e=document.getElementById('ai-e')?.value, p=document.getElementById('ai-p')?.value;
+  if (!e||!p) { showToast('Fill all fields','Email & password required','⚠️'); return; }
+  loginUser({ name:e.split('@')[0], email:e, phone:'' });
+}
+function doSignUp() {
+  const fn=document.getElementById('au-fn')?.value, em=document.getElementById('au-em')?.value;
+  if (!fn||!em) { showToast('Fill all fields','Name & email are required','⚠️'); return; }
+  loginUser({ name:`${fn} ${document.getElementById('au-ln')?.value||''}`.trim(), email:em, phone:document.getElementById('au-ph')?.value||'' });
+}
+function demoLogin() {
+  loginUser({ name:'Demo User', email:'demo@ticketwave.in', phone:'+91 98765 43210' });
+}
+function loginUser(u) {
+  S.user = u; localStorage.setItem('tw_user', JSON.stringify(u));
+  closeModal('auth-modal'); updateNavAuth();
+  showToast(`Welcome, ${u.name.split(' ')[0]}! 👋`,'Successfully signed in','✅');
+  if (S.pendingNav) { const v=S.pendingNav; S.pendingNav=null; v(); }
+}
+function signOut() {
+  S.user=null; localStorage.removeItem('tw_user'); updateNavAuth();
+  showToast('Signed out','See you next time!','👋'); goPage('home');
+}
+function updateNavAuth() {
+  const el = document.getElementById('nav-auth-area');
+  if (S.user) {
+    el.innerHTML = `<div style="display:flex;align-items:center;gap:8px">
+      <button onclick="goPage('mytickets')" style="background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900">${S.user.name[0].toUpperCase()}</div>
+        ${S.user.name.split(' ')[0]}
+      </button>
+      <button onclick="signOut()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px">Sign Out</button>
+    </div>`;
+  } else {
+    el.innerHTML = `<button class="tn-link red-btn" onclick="openAuth()">Sign In</button>`;
+  }
+}
+
+function requireAuthThen(fn) {
+  if (S.user) { fn(); return; }
+  S.pendingNav = fn; openAuth();
+}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+let _tt;
+function showToast(title, msg, icon='✅', err=false) {
+  document.getElementById('ti').textContent = icon;
+  document.getElementById('tt').textContent = title;
+  document.getElementById('tm').textContent = msg;
+  const el = document.getElementById('toast');
+  el.className = `toast show${err?' err':''}`;
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>el.classList.remove('show'), 4000);
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+renderHome();
+updateNavAuth();
+renderBrowse();
+authSwitch('in');
+</script>
+</body>
+</html>
